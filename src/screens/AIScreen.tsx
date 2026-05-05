@@ -14,7 +14,7 @@ interface Message { role: 'user' | 'assistant'; content: string }
 export default function AIScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '告诉我家里有什么食材，我来帮你配一顿不无聊的菜。' },
+    { role: 'assistant', content: '告诉我家里有什么食材，我会用 DeepSeek 帮你配一顿不无聊的菜。' },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
