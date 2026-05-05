@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { askAI } from '../services/aiService';
 import { getAllRecipes } from '../services/recipeService';
@@ -11,6 +12,7 @@ import AppBackground from '../components/AppBackground';
 interface Message { role: 'user' | 'assistant'; content: string }
 
 export default function AIScreen() {
+  const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: '告诉我家里有什么食材，我来帮你配一顿不无聊的菜。' },
   ]);
@@ -37,7 +39,7 @@ export default function AIScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <AppBackground>
-        <ScrollView style={styles.chatArea} contentContainerStyle={styles.chatContent}>
+        <ScrollView style={styles.chatArea} contentContainerStyle={[styles.chatContent, { paddingBottom: tabBarHeight + 18 }]}>
           {messages.map((msg, i) => (
             <View key={i} style={[styles.bubble, msg.role === 'user' ? styles.userBubble : styles.assistantBubble]}>
               <Text style={[styles.bubbleText, msg.role === 'user' && styles.userBubbleText]}>{msg.content}</Text>
@@ -51,7 +53,7 @@ export default function AIScreen() {
           )}
         </ScrollView>
 
-        <View style={styles.inputBar}>
+        <View style={[styles.inputBar, { paddingBottom: tabBarHeight + 10 }]}>
           <TextInput
             style={styles.chatInput}
             placeholder="输入食材，例如：鸡蛋、番茄、米饭..."
