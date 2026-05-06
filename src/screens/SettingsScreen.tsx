@@ -3,13 +3,12 @@ import {
   Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DEFAULT_AI_CONFIG, getAIConfig, saveAIConfig } from '../services/aiService';
+import { BUILTIN_API_KEY, DEFAULT_AI_CONFIG, getAIConfig, saveAIConfig } from '../services/aiService';
 import { theme } from '../theme';
 import GlassCard from '../components/GlassCard';
 import AppBackground from '../components/AppBackground';
 
 export default function SettingsScreen() {
-  const [apiKey, setApiKey] = useState('');
   const [baseUrl, setBaseUrl] = useState('');
   const [model, setModel] = useState('');
   const [saving, setSaving] = useState(false);
@@ -19,7 +18,6 @@ export default function SettingsScreen() {
   async function loadConfig() {
     try {
       const c = await getAIConfig();
-      setApiKey(c.apiKey);
       setBaseUrl(c.baseUrl);
       setModel(c.model);
     } catch {}
@@ -31,11 +29,9 @@ export default function SettingsScreen() {
   }
 
   async function handleSave() {
-    if (!apiKey.trim()) { Alert.alert('提示', '请输入 DeepSeek API Key'); return; }
     setSaving(true);
     try {
       await saveAIConfig({
-        apiKey: apiKey.trim(),
         baseUrl: baseUrl.trim() || DEFAULT_AI_CONFIG.baseUrl,
         model: model.trim() || DEFAULT_AI_CONFIG.model,
       });
@@ -52,15 +48,12 @@ export default function SettingsScreen() {
         <GlassCard style={styles.card}>
           <Text style={styles.kicker}>AI 厨房助手</Text>
           <Text style={styles.title}>DeepSeek 配置</Text>
-          <Text style={styles.desc}>填入 DeepSeek API Key 后即可点菜。默认接口为 https://api.deepseek.com，模型为 deepseek-v4-flash。</Text>
+          <Text style={styles.desc}>API Key 已内置，开箱即用。你也可以在此自定义接口地址和模型。</Text>
 
           <TouchableOpacity style={styles.quickBtn} onPress={fillDeepSeekDefaults}>
             <Ionicons name="flash" size={17} color={theme.primary} />
-            <Text style={styles.quickBtnText}>填入 DeepSeek 默认配置</Text>
+            <Text style={styles.quickBtnText}>恢复 DeepSeek 默认配置</Text>
           </TouchableOpacity>
-
-          <Text style={styles.label}>DeepSeek API Key *</Text>
-          <TextInput style={styles.input} placeholder="sk-..." placeholderTextColor={theme.textMuted} value={apiKey} onChangeText={setApiKey} secureTextEntry autoCapitalize="none" />
 
           <Text style={styles.label}>API Base URL</Text>
           <TextInput style={styles.input} placeholder={DEFAULT_AI_CONFIG.baseUrl} placeholderTextColor={theme.textMuted} value={baseUrl} onChangeText={setBaseUrl} autoCapitalize="none" keyboardType="url" />
@@ -75,7 +68,7 @@ export default function SettingsScreen() {
 
         <GlassCard style={styles.card}>
           <Text style={styles.title}>关于</Text>
-          <Text style={styles.aboutText}>吃什么？v1.0 是一个家庭菜谱和 AI 点菜应用，帮你把“今天吃什么”的问题变成一个好玩的按钮。</Text>
+          <Text style={styles.aboutText}>吃什么？v1.0 是一个家庭菜谱和 AI 点菜应用，内置 DeepSeek API Key，打开即可使用 AI 推荐菜谱功能。</Text>
         </GlassCard>
       </ScrollView>
     </AppBackground>
