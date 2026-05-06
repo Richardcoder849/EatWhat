@@ -1,8 +1,9 @@
 import { Recipe } from '../types';
 
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 export const seedData: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>[] = [
+  // ===== 中餐 =====
   {
     name: '红烧肉',
     category: '中餐',
@@ -91,6 +92,22 @@ export const seedData: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>[] = [
     imageUri: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Fried_rice_with_chicken_and_egg.jpg',
   },
   {
+    name: '糖醋排骨',
+    category: '中餐',
+    ingredients: JSON.stringify(['排骨 500g', '白糖 3勺', '香醋 3勺', '生抽 2勺', '番茄酱 1勺', '料酒 1勺', '姜片适量', '白芝麻少许']),
+    steps: JSON.stringify([
+      '排骨洗净斩段，冷水下锅加姜片、料酒焯水。',
+      '捞出洗净沥干。',
+      '调糖醋汁：白糖、香醋、生抽、番茄酱和少许水搅匀。',
+      '锅中多油，七成热下排骨炸至金黄捞出。',
+      '锅留底油，倒入糖醋汁烧开。',
+      '下排骨翻炒均匀裹上酱汁，撒白芝麻出锅。',
+    ]),
+    notes: '糖醋汁比例可按个人口味调整，喜欢酸一点就多加醋。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Sweet_and_sour_pork.jpg',
+  },
+  // ===== 汤羹 =====
+  {
     name: '酸辣汤',
     category: '汤羹',
     ingredients: JSON.stringify(['嫩豆腐 半盒', '木耳 5朵', '鸡蛋 1个', '香醋 2勺', '白胡椒粉 1茶匙', '生抽 1勺', '水淀粉适量', '香油少许', '葱花适量']),
@@ -106,18 +123,140 @@ export const seedData: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>[] = [
     imageUri: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Hot-and-Sour-Soup-Bowl.jpg',
   },
   {
-    name: '糖醋排骨',
-    category: '中餐',
-    ingredients: JSON.stringify(['排骨 500g', '白糖 3勺', '香醋 3勺', '生抽 2勺', '番茄酱 1勺', '料酒 1勺', '姜片适量', '白芝麻少许']),
+    name: '玉米排骨汤',
+    category: '汤羹',
+    ingredients: JSON.stringify(['排骨 400g', '玉米 2根', '胡萝卜 1根', '姜片 5片', '枸杞 1小把', '盐 1茶匙', '料酒 1勺']),
     steps: JSON.stringify([
-      '排骨洗净斩段，冷水下锅加姜片、料酒焯水。',
-      '捞出洗净沥干。',
-      '调糖醋汁：白糖、香醋、生抽、番茄酱和少许水搅匀。',
-      '锅中多油，七成热下排骨炸至金黄捞出。',
-      '锅留底油，倒入糖醋汁烧开。',
-      '下排骨翻炒均匀裹上酱汁，撒白芝麻出锅。',
+      '排骨焯水去血沫，捞出洗净。',
+      '玉米切段，胡萝卜切滚刀块。',
+      '所有食材放入汤锅，加足量清水。',
+      '大火烧开转小火煲 1.5 小时。',
+      '出锅前加盐调味，撒枸杞即可。',
     ]),
-    notes: '糖醋汁比例可按个人口味调整，喜欢酸一点就多加醋。',
-    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Sweet_and_sour_pork.jpg',
+    notes: '煲汤时间越长越入味，可以在最后 10 分钟再加盐。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Corn_soup_with_ribs.jpg',
+  },
+  // ===== 西餐 =====
+  {
+    name: '奶油蘑菇意面',
+    category: '西餐',
+    ingredients: JSON.stringify(['意大利面 200g', '口蘑 8朵', '淡奶油 200ml', '黄油 30g', '蒜末 3瓣', '帕玛森芝士 30g', '盐 1茶匙', '黑胡椒适量', '欧芹碎少许']),
+    steps: JSON.stringify([
+      '大锅烧水加盐，煮意面至弹牙，留半杯煮面水备用。',
+      '蘑菇切片，中火融化黄油。',
+      '下蒜末爆香，加入蘑菇炒至金黄。',
+      '倒入淡奶油和煮面水，搅拌均匀。',
+      '加入煮好的意面翻炒，磨入帕玛森芝士。',
+      '撒盐、黑胡椒和欧芹碎调味即可。',
+    ]),
+    notes: '意面不要煮太软，留一点硬度口感更好。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Creamy_mushroom_pasta.jpg',
+  },
+  {
+    name: '煎牛排配迷迭香',
+    category: '西餐',
+    ingredients: JSON.stringify(['西冷牛排 1块约300g', '迷迭香 2枝', '大蒜 3瓣', '黄油 30g', '橄榄油 1勺', '海盐 1茶匙', '黑胡椒 1茶匙']),
+    steps: JSON.stringify([
+      '牛排提前 30 分钟取出回温，两面撒海盐和黑胡椒。',
+      '大火烧热铸铁锅，加入橄榄油至冒烟。',
+      '放入牛排，煎 1.5 分钟后翻面。',
+      '加入黄油、迷迭香、拍扁的大蒜。',
+      '用勺子不断将黄油淋在牛排上，续煎 1 分钟。',
+      '取出静置 5 分钟，切片上桌。',
+    ]),
+    notes: '静置是锁住肉汁的关键步骤，千万别跳过。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Steak_with_rosemary.jpg',
+  },
+  {
+    name: '凯撒沙拉',
+    category: '西餐',
+    ingredients: JSON.stringify(['罗马生菜 1颗', '面包丁 50g', '帕玛森芝士片 30g', '鸡胸肉 1块', '凯撒酱 3勺', '柠檬汁 1勺', '橄榄油 1勺', '盐和黑胡椒适量']),
+    steps: JSON.stringify([
+      '鸡胸肉撒盐和黑胡椒，煎熟后切条。',
+      '面包丁放烤箱 180°C 烤 5 分钟至酥脆。',
+      '生菜洗净撕成小片，沥干水分。',
+      '盘中放入生菜、鸡胸肉条、面包丁。',
+      '淋上凯撒酱和柠檬汁，刨上帕玛森芝士片。',
+    ]),
+    notes: '生菜一定要沥干水分，不然酱汁会被稀释。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Caesar_salad_%282%29.jpg',
+  },
+  // ===== 日料 =====
+  {
+    name: '日式照烧鸡腿',
+    category: '日料',
+    ingredients: JSON.stringify(['去骨鸡腿 2只', '生抽 3勺', '味醂 2勺', '清酒 1勺', '蜂蜜 1勺', '姜片 3片', '白芝麻少许']),
+    steps: JSON.stringify([
+      '鸡腿用厨房纸吸干水分，用刀背拍松。',
+      '混合生抽、味醂、清酒、蜂蜜做成照烧酱。',
+      '鸡腿放入酱汁中腌制 20 分钟。',
+      '平底锅少油，鸡皮面朝下煎至金黄。',
+      '倒入剩余酱汁，小火收汁至浓稠挂住鸡肉。',
+      '切片后淋上锅中酱汁，撒白芝麻。',
+    ]),
+    notes: '味醂可以用 1勺料酒+半勺糖替代。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Teriyaki_chicken_don.jpg',
+  },
+  {
+    name: '味噌三文鱼',
+    category: '日料',
+    ingredients: JSON.stringify(['三文鱼 2块', '白味噌 3勺', '味醂 2勺', '清酒 1勺', '白糖 1茶匙', '葱花适量']),
+    steps: JSON.stringify([
+      '白味噌、味醂、清酒、白糖混合搅匀成腌酱。',
+      '三文鱼均匀涂上腌酱，密封冷藏腌制 2 小时。',
+      '烤箱预热 200°C。',
+      '擦去表面多余酱汁，烤盘铺油纸，烤 12 分钟。',
+      '中途可刷一层蜂蜜增色。',
+      '撒葱花上桌。',
+    ]),
+    notes: '腌制时间不要超过 4 小时，否则会过咸。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Miso_cod_%28black_cod_with_miso%29.jpg',
+  },
+  // ===== 甜点 =====
+  {
+    name: '法式焦糖布丁',
+    category: '甜点',
+    ingredients: JSON.stringify(['蛋黄 4个', '淡奶油 200ml', '牛奶 150ml', '白糖 60g', '香草精 1茶匙', '焦糖用白糖 40g', '焦糖用水 2勺']),
+    steps: JSON.stringify([
+      '制作焦糖：白糖加水小火煮至琥珀色，迅速倒入模具底部。',
+      '淡奶油和牛奶加热至微沸，不要煮开。',
+      '蛋黄加白糖搅拌均匀，不要打发。',
+      '将热牛奶缓缓倒入蛋黄中，边倒边搅拌。',
+      '加入香草精，过滤后倒入模具。',
+      '烤盘加热水（水浴法），150°C 烤 40 分钟，冷却后冷藏 4 小时。',
+    ]),
+    notes: '水浴法能让布丁口感更嫩滑，过滤是细腻的关键。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Creme_brulee.jpg',
+  },
+  {
+    name: '芒果糯米饭',
+    category: '甜点',
+    ingredients: JSON.stringify(['糯米 200g', '芒果 2个', '椰浆 200ml', '白糖 3勺', '盐 1小撮', '白芝麻少许']),
+    steps: JSON.stringify([
+      '糯米提前浸泡 4 小时或过夜。',
+      '蒸锅铺湿纱布，糯米沥干后蒸 25 分钟。',
+      '椰浆加白糖和盐小火加热至糖融化。',
+      '将热椰浆倒入蒸好的糯米中，拌匀静置 15 分钟。',
+      '芒果去皮切片。',
+      '糯米盛盘，摆上芒果片，淋上剩余椰浆，撒芝麻。',
+    ]),
+    notes: '加一点点盐可以提升椰浆的甜味层次。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Mango_sticky_rice_%282%29.jpg',
+  },
+  // ===== 早餐 =====
+  {
+    name: '班尼迪克蛋',
+    category: '早餐',
+    ingredients: JSON.stringify(['英式松饼 2个', '鸡蛋 3个', '火腿片 2片', '黄油 100g', '蛋黄 1个（荷兰酱）', '柠檬汁 1勺', '白醋 1勺', '盐和胡椒适量']),
+    steps: JSON.stringify([
+      '做荷兰酱：黄油融化，蛋黄加柠檬汁隔水搅打，缓缓倒入黄油搅至浓稠。',
+      '烧一锅水加白醋，水开后转小火。',
+      '鸡蛋打入小碗，用筷子在水中搅出漩涡，倒入鸡蛋。',
+      '煮 3 分钟后捞出溏心蛋。',
+      '英式松饼切半烤至微焦。',
+      '摆上火腿片、溏心蛋，淋上荷兰酱，撒盐和胡椒。',
+    ]),
+    notes: '煮水波蛋时水不能沸腾，水温保持在 80°C 左右最佳。',
+    imageUri: 'https://upload.wikimedia.org/wikipedia/commons/1/1c/Eggs_Benedict.jpg',
   },
 ];

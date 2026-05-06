@@ -4,23 +4,24 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { getAllRecipes, searchRecipes, getRecipesByCategory } from '../services/recipeService';
+import { getAllRecipes, searchRecipes, getRecipesByCategory, getCategories } from '../services/recipeService';
 import { Recipe } from '../types';
 import { theme } from '../theme';
 import RecipeCard from '../components/RecipeCard';
 import AppBackground from '../components/AppBackground';
 
-const CATEGORIES = ['全部', '中餐', '西餐', '日料', '甜点', '汤羹', '早餐', '小吃', '饮品', '其他'];
-
 export default function RecipeListScreen({ navigation }: any) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [categories, setCategories] = useState<string[]>(['全部']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
 
-  useFocusEffect(useCallback(() => { loadRecipes(); }, [selectedCategory, searchQuery]));
+  useFocusEffect(useCallback(() => { loadData(); }, [selectedCategory, searchQuery]));
 
-  async function loadRecipes() {
+  async function loadData() {
     try {
+      const cats = await getCategories();
+      setCategories(['全部', ...cats]);
       let data: Recipe[];
       if (searchQuery.trim()) data = await searchRecipes(searchQuery.trim());
       else if (selectedCategory !== '全部') data = await getRecipesByCategory(selectedCategory);
@@ -54,7 +55,7 @@ export default function RecipeListScreen({ navigation }: any) {
 
       <FlatList
         horizontal
-        data={CATEGORIES}
+        data={categories}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chipList}
         keyExtractor={item => item}
@@ -63,6 +64,7 @@ export default function RecipeListScreen({ navigation }: any) {
             style={[styles.chip, selectedCategory === item && styles.chipActive]}
             onPress={() => setSelectedCategory(item)}
           >
+            <Ionicons name={getCategoryIcon(item)} size={14} color={selectedCategory === item ? '#fff' : theme.textSecondary} style={{ marginRight: 4 }} />
             <Text style={[styles.chipText, selectedCategory === item && styles.chipTextActive]}>{item}</Text>
           </TouchableOpacity>
         )}
@@ -97,6 +99,22 @@ export default function RecipeListScreen({ navigation }: any) {
   );
 }
 
+function getCategoryIcon(cat: string): keyof typeof Ionicons.glyphMap {
+  const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
+    '全部': 'apps',
+    '中餐': 'flame',
+    '西餐': 'restaurant',
+    '日料': 'fish',
+    '甜点': 'ice-cream',
+    '汤羹': 'water',
+    '早餐': 'sunny',
+    '小吃': 'pizza',
+    '饮品': 'cafe',
+    '其他': 'ellipsis-horizontal',
+  };
+  return icons[cat] || 'restaurant-outline';
+}
+
 const styles = StyleSheet.create({
   header: {
     marginTop: 54,
@@ -128,7 +146,17 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, paddingVertical: 11, paddingHorizontal: 8, fontSize: 15, color: theme.text },
   chipList: { paddingHorizontal: 16, paddingBottom: 10 },
-  chip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 18, backgroundColor: theme.glass, marginRight: 8, borderWidth: 1, borderColor: theme.glassBorder },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 18,
+    backgroundColor: theme.glass,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: theme.glassBorder,
+  },
   chipActive: { backgroundColor: theme.ink, borderColor: theme.ink },
   chipText: { fontSize: 14, color: theme.textSecondary, fontWeight: '600' },
   chipTextActive: { color: '#fff', fontWeight: '800' },
