@@ -6,9 +6,15 @@ export interface Recipe {
   steps: string;
   notes: string;
   imageUri: string;
+  cookTime?: number;
+  tags?: string;
+  lastPickedAt?: number;
+  pickCount?: number;
   createdAt: number;
   updatedAt: number;
 }
+
+export type DecisionFilter = 'all' | 'quick' | 'light' | 'meat';
 
 export interface AIConfig {
   apiKey: string;
@@ -20,6 +26,8 @@ export type RootStackParamList = {
   MainTabs: undefined;
   RecipeDetail: { recipeId: number };
   AddEditRecipe: { recipeId?: number };
+  CookingMode: { recipeId: number };
+  DecisionHistory: undefined;
 };
 
 export type TabParamList = {

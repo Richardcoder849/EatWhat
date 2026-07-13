@@ -1,110 +1,152 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Platform,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { getAllRecipes, searchRecipes, getRecipesByCategory } from '../services/recipeService';
+import { getAllRecipes } from '../services/recipeService';
 import { Recipe } from '../types';
 import { theme } from '../theme';
 import RecipeCard from '../components/RecipeCard';
-
-const bgGrad = Platform.OS === 'web'
-  ? { background: 'linear-gradient(180deg, #F2F5EE 0%, #EAF0E4 50%, #E5EDDC 100%)' }
-  : { backgroundColor: theme.background };
+import { parseRecipeList, recipeMatches } from '../utils/recipe';
+import { getRecipeCookTime } from '../utils/recommendation';
 
 const CATEGORIES = ['全部', '中餐', '西餐', '日料', '甜点', '汤羹', '早餐', '小吃', '饮品', '其他'];
 
 export default function RecipeListScreen({ navigation }: any) {
+  const { width } = useWindowDimensions();
+  const columns = width >= 720 ? 3 : 2;
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
 
-  useFocusEffect(useCallback(() => { loadRecipes(); }, [selectedCategory, searchQuery]));
-
-  async function loadRecipes() {
+  const loadRecipes = useCallback(async (showRefresh = false) => {
+    if (showRefresh) setRefreshing(true);
     try {
-      let data: Recipe[];
-      if (searchQuery.trim()) data = await searchRecipes(searchQuery.trim());
-      else if (selectedCategory !== '全部') data = await getRecipesByCategory(selectedCategory);
-      else data = await getAllRecipes();
-      setRecipes(data);
-    } catch {}
-  }
+      setRecipes(await getAllRecipes());
+      setError('');
+    } catch {
+      setError('菜谱加载失败，请下拉重试');
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { void loadRecipes(); }, [loadRecipes]));
+
+  const visibleRecipes = useMemo(
+    () => recipes.filter(recipe => recipeMatches(recipe, searchQuery, selectedCategory)),
+    [recipes, searchQuery, selectedCategory]
+  );
 
   return (
-    <View style={[styles.container, bgGrad]}>
-      <View style={[styles.blob, { width: 220, height: 220, top: -60, right: -60, backgroundColor: '#A8D86B' }]} />
-      <View style={[styles.blob, { width: 160, height: 160, bottom: 80, left: -40, backgroundColor: '#86C84B' }]} />
+    <View style={styles.container}>
+      <View style={styles.contentWidth}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>我的菜谱</Text>
+            <Text style={styles.subtitle}>{visibleRecipes.length === recipes.length ? `共 ${recipes.length} 道` : `找到 ${visibleRecipes.length} 道`}</Text>
+          </View>
+          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddEditRecipe')} accessibilityLabel="添加菜谱">
+            <Ionicons name="add" size={25} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={18} color={theme.textMuted} />
-        <TextInput style={styles.searchInput} placeholder="搜索菜谱或食材..." placeholderTextColor={theme.textMuted} value={searchQuery} onChangeText={setSearchQuery} />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}><Ionicons name="close-circle" size={18} color={theme.textMuted} /></TouchableOpacity>
-        ) : null}
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={19} color={theme.textMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="搜索菜名或食材"
+            placeholderTextColor={theme.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+          />
+          {!!searchQuery && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} accessibilityLabel="清空搜索">
+              <Ionicons name="close-circle" size={20} color={theme.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories} contentContainerStyle={styles.categoryContent}>
+          {CATEGORIES.map(item => (
+            <TouchableOpacity
+              key={item}
+              style={[styles.chip, selectedCategory === item && styles.chipActive]}
+              onPress={() => setSelectedCategory(item)}
+            >
+              <Text style={[styles.chipText, selectedCategory === item && styles.chipTextActive]}>{item}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
-      <FlatList
-        horizontal
-        data={CATEGORIES}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
-        keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.chip, selectedCategory === item && styles.chipActive]}
-            onPress={() => setSelectedCategory(item)}
-          >
-            <Text style={[styles.chipText, selectedCategory === item && styles.chipTextActive]}>{item}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      {!!error && <Text style={[styles.errorText, styles.contentWidth]}>{error}</Text>}
 
       <FlatList
-        data={recipes}
+        key={columns}
+        data={visibleRecipes}
+        numColumns={columns}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <RecipeCard
-            name={item.name}
-            category={item.category}
-            ingredientCount={JSON.parse(item.ingredients).length}
-            stepCount={JSON.parse(item.steps).length}
-            imageUri={item.imageUri}
-            onPress={() => navigation.navigate('RecipeDetail', { recipeId: item.id })}
-          />
+          <View style={[styles.cardCell, { maxWidth: `${100 / columns}%` }]}>
+            <RecipeCard
+              name={item.name}
+              category={item.category}
+              cookTime={getRecipeCookTime(item)}
+              ingredientCount={parseRecipeList(item.ingredients).length}
+              imageUri={item.imageUri}
+              onPress={() => navigation.navigate('RecipeDetail', { recipeId: item.id })}
+            />
+          </View>
         )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadRecipes(true)} colors={[theme.primary]} tintColor={theme.primary} />}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Ionicons name="book-outline" size={44} color={theme.textMuted} />
-            <Text style={styles.emptyText}>还没有菜谱</Text>
-            <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddEditRecipe')}>
-              <Ionicons name="add" size={18} color="#fff" />
-              <Text style={styles.addBtnText}> 添加菜谱</Text>
-            </TouchableOpacity>
+            <Ionicons name={recipes.length ? 'search-outline' : 'book-outline'} size={38} color={theme.textMuted} />
+            <Text style={styles.emptyTitle}>{recipes.length ? '没有匹配的菜谱' : '还没有菜谱'}</Text>
+            <Text style={styles.emptyText}>{recipes.length ? '换个关键词或分类试试' : '点击右上角添加第一道菜'}</Text>
           </View>
         }
-        contentContainerStyle={{ paddingBottom: 20, paddingTop: 4 }}
+        columnWrapperStyle={columns > 1 ? styles.gridRow : undefined}
+        contentContainerStyle={[styles.listContent, !visibleRecipes.length && styles.emptyListContent]}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  blob: { position: 'absolute', borderRadius: 200, opacity: 0.3 },
-  searchBar: {
-    flexDirection: 'row', alignItems: 'center', margin: 16, marginBottom: 6,
-    paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.65)', borderRadius: 12,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.85)', marginTop: 50,
-  },
-  searchInput: { flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 15, color: theme.text },
-  chip: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.65)', marginRight: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.85)' },
-  chipActive: { backgroundColor: theme.primary, borderColor: theme.primary },
-  chipText: { fontSize: 14, color: theme.textSecondary, fontWeight: '500' },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  emptyBox: { alignItems: 'center', marginTop: 80 },
-  emptyText: { fontSize: 16, color: theme.textMuted, marginTop: 12, marginBottom: 20 },
-  addBtn: { flexDirection: 'row', backgroundColor: theme.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 22, alignItems: 'center' },
-  addBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  container: { flex: 1, backgroundColor: theme.background },
+  contentWidth: { width: '100%', maxWidth: 760, alignSelf: 'center' },
+  header: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 50, paddingHorizontal: 16, marginBottom: 15 },
+  title: { color: theme.text, fontSize: 28, fontWeight: '900' },
+  subtitle: { marginTop: 3, color: theme.textSecondary, fontSize: 13, fontWeight: '600' },
+  addButton: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: theme.primary },
+  searchBar: { minHeight: 46, flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, paddingHorizontal: 13, borderWidth: 1, borderColor: theme.border, borderRadius: 8, backgroundColor: theme.surface },
+  searchInput: { flex: 1, paddingVertical: 10, paddingHorizontal: 9, color: theme.text, fontSize: 15 },
+  categories: { flexGrow: 0, marginTop: 11, marginBottom: 11 },
+  categoryContent: { paddingHorizontal: 16 },
+  chip: { height: 34, justifyContent: 'center', paddingHorizontal: 14, marginRight: 7, borderWidth: 1, borderColor: theme.border, borderRadius: 8, backgroundColor: theme.surface },
+  chipActive: { borderColor: theme.primary, backgroundColor: theme.primary },
+  chipText: { color: theme.textSecondary, fontSize: 13, fontWeight: '700' },
+  chipTextActive: { color: '#FFFFFF' },
+  errorText: { paddingHorizontal: 16, marginBottom: 8, color: theme.error, fontSize: 13 },
+  listContent: { width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 11, paddingBottom: 30 },
+  emptyListContent: { flexGrow: 1 },
+  gridRow: { alignItems: 'stretch' },
+  cardCell: { flex: 1, minWidth: 0, padding: 5 },
+  emptyBox: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 80 },
+  emptyTitle: { marginTop: 12, color: theme.text, fontSize: 17, fontWeight: '800' },
+  emptyText: { marginTop: 4, color: theme.textSecondary, fontSize: 13 },
 });

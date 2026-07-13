@@ -2,8 +2,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { Platform, View } from 'react-native';
 import { RootStackParamList, TabParamList } from '../types';
 import { theme } from '../theme';
 
@@ -13,6 +11,8 @@ import RecipeDetailScreen from '../screens/RecipeDetailScreen';
 import AddEditRecipeScreen from '../screens/AddEditRecipeScreen';
 import AIScreen from '../screens/AIScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import CookingModeScreen from '../screens/CookingModeScreen';
+import DecisionHistoryScreen from '../screens/DecisionHistoryScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,16 +20,9 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const iconMap: Record<string, { focused: keyof typeof Ionicons.glyphMap; default: keyof typeof Ionicons.glyphMap }> = {
   Home: { focused: 'restaurant', default: 'restaurant-outline' },
   RecipeList: { focused: 'book', default: 'book-outline' },
-  AI: { focused: 'sparkles', default: 'sparkles' },
+  AI: { focused: 'bulb', default: 'bulb-outline' },
   Settings: { focused: 'settings', default: 'settings-outline' },
 };
-
-function TabBackground() {
-  if (Platform.OS === 'web') {
-    return <View style={{ flex: 1, backgroundColor: theme.tabBarBg }} />;
-  }
-  return <BlurView intensity={80} tint="light" style={{ flex: 1 }} />;
-}
 
 function MainTabs() {
   return (
@@ -43,25 +36,26 @@ function MainTabs() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          elevation: 0,
-          paddingBottom: 6,
-          paddingTop: 6,
-          height: 60,
+          backgroundColor: theme.tabBarBg,
+          borderTopWidth: 1,
+          borderTopColor: theme.tabBarBorder,
+          elevation: 8,
+          paddingBottom: 8,
+          paddingTop: 7,
+          height: 68,
+          zIndex: 20,
         },
-        tabBarBackground: () => <TabBackground />,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: '600',
         },
+        tabBarHideOnKeyboard: true,
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: '首页' }} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: '决定' }} />
       <Tab.Screen name="RecipeList" component={RecipeListScreen} options={{ tabBarLabel: '菜谱' }} />
-      <Tab.Screen name="AI" component={AIScreen} options={{ tabBarLabel: 'AI点菜' }} />
+      <Tab.Screen name="AI" component={AIScreen} options={{ tabBarLabel: '灵感' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: '设置' }} />
     </Tab.Navigator>
   );
@@ -75,12 +69,13 @@ export default function AppNavigator() {
         headerTintColor: theme.text,
         headerTitleStyle: { fontWeight: '600', fontSize: 17 },
         headerShadowVisible: false,
-        headerTransparent: Platform.OS !== 'web',
-        headerBlurEffect: 'light',
+        headerBackTitle: '返回',
       }}
     >
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ title: '菜谱详情' }} />
+      <Stack.Screen name="DecisionHistory" component={DecisionHistoryScreen} options={{ title: '吃过什么' }} />
+      <Stack.Screen name="CookingMode" component={CookingModeScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="AddEditRecipe"
         component={AddEditRecipeScreen}
