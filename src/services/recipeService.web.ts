@@ -7,7 +7,6 @@ const VERSION_KEY = '@eatwhat:seed_version';
 function checkVersion(): void {
   const saved = localStorage.getItem(VERSION_KEY);
   if (saved !== String(SEED_VERSION)) {
-    localStorage.removeItem(STORAGE_KEY);
     localStorage.setItem(VERSION_KEY, String(SEED_VERSION));
   }
 }
@@ -16,7 +15,14 @@ function load(): Recipe[] {
   checkVersion();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const recipes: Recipe[] = raw ? JSON.parse(raw) : [];
+    return recipes.map(recipe => ({
+      ...recipe,
+      cookTime: recipe.cookTime ?? 30,
+      tags: recipe.tags ?? '[]',
+      lastPickedAt: recipe.lastPickedAt ?? 0,
+      pickCount: recipe.pickCount ?? 0,
+    }));
   } catch {
     return [];
   }
@@ -98,6 +104,21 @@ export async function getCategories(): Promise<string[]> {
 
 export async function getRecipeCount(): Promise<number> {
   return load().length;
+}
+
+export async function recordRecipePick(id: number): Promise<void> {
+  const data = load();
+  const recipe = data.find(item => item.id === id);
+  if (!recipe) return;
+  recipe.lastPickedAt = Date.now();
+  recipe.pickCount = (recipe.pickCount ?? 0) + 1;
+  save(data);
+}
+
+export async function getDecisionHistory(): Promise<Recipe[]> {
+  return load()
+    .filter(recipe => (recipe.lastPickedAt ?? 0) > 0)
+    .sort((a, b) => (b.lastPickedAt ?? 0) - (a.lastPickedAt ?? 0));
 }
 
 export async function seedRecipes(recipes: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {

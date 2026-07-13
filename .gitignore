@@ -5,6 +5,8 @@ node_modules/
 
 # Expo
 .expo/
+.playwright-cli/
+output/
 dist/
 web-build/
 expo-env.d.ts

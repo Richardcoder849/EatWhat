@@ -1,33 +1,39 @@
 export const theme = {
-  // Grass green palette
-  primary: '#86C84B',
-  primaryDark: '#5FA832',
-  primaryLight: '#A8D86B',
-  primaryBg: '#E8F5DC',
+  primary: '#E3312D',
+  primaryDark: '#B91F1B',
+  primaryLight: '#F2675D',
+  primaryBg: '#FFF0ED',
 
-  // Background
-  background: '#F2F5EE',
-  backgroundGradient: ['#F2F5EE', '#EAF0E4'] as const,
+  positive: '#347A43',
+  positiveDark: '#245C31',
+  positiveBg: '#EAF5EC',
 
-  // Frosted glass surfaces
-  glass: 'rgba(255,255,255,0.72)',
-  glassDark: 'rgba(255,255,255,0.52)',
-  glassBorder: 'rgba(255,255,255,0.9)',
-  glassShadow: 'rgba(0,0,0,0.06)',
+  accent: '#F2B71B',
+  accentDark: '#8C6500',
+  accentBg: '#FFF7D8',
 
-  // Text
-  text: '#1A1D1A',
-  textSecondary: '#5C605C',
-  textMuted: '#9BA39B',
+  background: '#FAFAF8',
+  surface: '#FFFFFF',
+  surfaceMuted: '#F3F2EF',
+  border: '#E3E1DC',
+  borderStrong: '#C9C6C0',
 
-  // Misc
-  cardRadius: 16,
-  sectionRadius: 12,
-  tabBarBg: 'rgba(242,245,238,0.85)',
-  tabBarBorder: 'rgba(255,255,255,0.6)',
-  inputBg: 'rgba(255,255,255,0.65)',
-  badgeBg: '#86C84B',
-  badgeText: '#fff',
-  error: '#FF6B6B',
-  overlay: 'rgba(0,0,0,0.3)',
+  glass: '#FFFFFF',
+  glassDark: '#F3F2EF',
+  glassBorder: '#E3E1DC',
+  glassShadow: 'rgba(24, 24, 22, 0.08)',
+
+  text: '#171715',
+  textSecondary: '#575752',
+  textMuted: '#92918B',
+
+  cardRadius: 8,
+  sectionRadius: 8,
+  tabBarBg: '#FFFFFF',
+  tabBarBorder: '#E3E1DC',
+  inputBg: '#FFFFFF',
+  badgeBg: '#347A43',
+  badgeText: '#FFFFFF',
+  error: '#C52A25',
+  overlay: 'rgba(17, 17, 15, 0.42)',
 };

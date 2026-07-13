@@ -40,28 +40,44 @@ export async function askAI(
 
   const url = `${config.baseUrl.replace(/\/+$/, '')}/chat/completions`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.8,
-      max_tokens: 1024,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
 
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`API 请求失败 (${response.status}): ${errorBody}`);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`,
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: config.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.8,
+        max_tokens: 1024,
+      }),
+    });
+
+    if (!response.ok) {
+      const rawError = await response.text();
+      let detail = rawError;
+      try {
+        const parsed = JSON.parse(rawError);
+        detail = parsed.error?.message || parsed.message || rawError;
+      } catch {}
+      throw new Error(`API 请求失败 (${response.status})：${detail.slice(0, 180)}`);
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || 'AI 没有返回有效内容，请换一种问法。';
+  } catch (error: any) {
+    if (error?.name === 'AbortError') throw new Error('请求超时，请检查网络或 API 地址');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '抱歉，AI 没有返回有效的回复。';
 }

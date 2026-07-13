@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, Platform } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import { theme } from '../theme';
 
 interface GlassCardProps {
@@ -15,21 +15,16 @@ export default function GlassCard({ children, style }: GlassCardProps) {
   );
 }
 
-const blurStyle: ViewStyle = Platform.OS === 'web'
-  ? ({ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any)
-  : {};
-
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255,255,255,0.65)',
+    backgroundColor: theme.surface,
     borderRadius: theme.cardRadius,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.85)',
-    ...blurStyle,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 3,
+    borderColor: theme.border,
+    shadowColor: '#122D1D',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
 });
